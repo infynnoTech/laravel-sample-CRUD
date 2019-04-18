@@ -27,16 +27,22 @@ class ProductController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-    public function index()
+    public function index(Request $request)
     {
         try{
-            $data['products'] = Product::get();
+            //$data['products'] = Product::get();
             $data['color'] = Config::get('constants.color');
             $data['weight'] = Config::get('constants.weight');
             $data['width'] = Config::get('constants.width');
             $data['height'] = Config::get('constants.height');
             //print_r( $data['products']->productdetail->color);exit;
+
+            $data['products'] = Product::paginate(1);
+            if ($request->ajax()) {
+               return view('products.product_table',$data);
+            }
             return view('products.products', $data);
+
         }catch (Exception $e) {
            Log::error($e);
 
@@ -158,12 +164,17 @@ class ProductController extends Controller
     /**
      * Display the specified resource.
      *
-     * @param  \App\Product  $product
+     * @param  $page
      * @return \Illuminate\Http\Response
      */
-    public function show(Product $product)
+    public function ajaxPagination($page)
     {
-        //
+        $data['products'] = Product::paginate(1);
+        if ($request->ajax()) {
+           return view('products.add_product', compact('data'));
+       }
+
+       return view('ajaxPagination',compact('data'));
     }
 
     /**
@@ -225,6 +236,51 @@ class ProductController extends Controller
                 $product_detail->weight = $request->weight;
                 $product_detail->height = $request->height;
                 $product_detail->description = $request->description;
+
+                $FiledataSave=array();
+    		 	$file = array('files' => Input::file('files'));
+                if(!empty(Input::file('files'))){
+                    foreach(Input::file('files') as $fileData){
+
+                            $destinationPath = 'uploads/products/';
+							$destinationThumbPath = 'uploads/products/thumbnail/';
+
+							if(!File::exists($destinationPath)) {
+								File::makeDirectory($destinationPath, $mode = 0777, true, true);
+							}
+							if(!File::exists($destinationThumbPath)) {
+								File::makeDirectory($destinationThumbPath, $mode = 0777, true, true);
+							}
+                            $extension = $fileData->getClientOriginalExtension(); // getting image extension
+							$filenameoriginal = $fileData->getClientOriginalName(); // getting  file name
+
+                            $filenameor =  rand(11111,99999).'_'.time();
+							$fileName =$filenameor.".{$extension}";  // renameing image
+
+                            $img = Image::make($fileData->getRealPath());
+							$img->resize(100, null, function ($constraint)
+							{
+								$constraint->aspectRatio();
+							})->save($destinationThumbPath.$fileName, 70);
+
+							$upload_success = $fileData->move($destinationPath, $fileName);  //move uploaded file
+                            if(!empty($upload_success))
+							{
+								$FiledataSave[]=$fileName;
+
+							}
+
+                    }
+                }
+
+                if(!empty($FiledataSave)){
+                    if(isset($product_detail->images) && !empty($product_detail->images)){
+                        $product_detail->images .= ','.implode(',',$FiledataSave);
+                    }else{
+                        $product_detail->images = implode(',',$FiledataSave);
+                    }
+    			}
+
                 $bool_product_detail = $product_detail->update();
 
                 if(isset($bool_product) && $bool_product > 0 && isset($bool_product_detail) && $bool_product_detail > 0){
@@ -264,8 +320,8 @@ class ProductController extends Controller
 
     					if(isset($image_array[$i]) && !empty($image_array[$i])){
 
-    						$destinationPath = 'public/uploads/products/';
-    						$destinationThumbPath = 'public/uploads/products/thumbnail/';
+    						$destinationPath = 'uploads/products/';
+    						$destinationThumbPath = 'uploads/products/thumbnail/';
 
     						if(isset($image_array[$i]) && File::exists($destinationThumbPath.$image_array[$i])){
     							$delete=File::delete($destinationThumbPath.$image_array[$i]);
@@ -279,6 +335,56 @@ class ProductController extends Controller
                 }
                 $bool = $product->delete();
             }
+            if(isset($bool) && $bool > 0){
+                return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
+            }else{
+                return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
+            }
+        }catch (Exception $e) {
+           Log::error($e);
+           return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
+        }
+    }
+
+
+    /**
+     * Remove image the specified resource from storage.
+     *
+     * @param  Request $request
+     * @return \Illuminate\Http\Response
+     */
+    public function destroyProductImage(Request $request)
+    {
+        try{
+            $bool = 0;
+            $product_detail = ProductDetail::where('product_id','=',Crypt::decrypt($request->val_id))->first();
+            if(isset($product_detail->id) && !empty($product_detail->id)){
+
+                if(isset($product_detail->images) && !empty($product_detail->images)){
+
+                    $image_array = explode(',',$product_detail->images);
+
+                    $image_key = array_search($request->img,$image_array);
+
+					if(isset($image_array[$image_key]) && !empty($image_array[$image_key])){
+						$destinationPath = 'public/uploads/products/';
+						$destinationThumbPath = 'public/uploads/products/thumbnail/';
+
+						if(isset($image_array[$image_key]) && File::exists($destinationThumbPath.$image_array[$image_key])){
+							$delete=File::delete($destinationThumbPath.$image_array[$image_key]);
+						}
+						if( isset( $image_array[$image_key] ) && File::exists( $destinationPath.$image_array[$image_key] ) ){
+							$delete=File::delete( $destinationPath.$image_array[$image_key] );
+						}
+                        unset($image_array[$image_key]);
+					}
+                    $img_srt=implode(',',$image_array);
+                    $product_detail->images=$img_srt;
+
+                    $bool = $product_detail->update();
+                }
+            }
+
             if(isset($bool) && $bool > 0){
                 return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
             }else{

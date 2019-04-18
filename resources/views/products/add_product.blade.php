@@ -188,8 +188,8 @@
                                 <div class="picture-container form-group">
                                     <h4 class="info_text">Upload Product Images</h4>
                                     <div class="picture">
-                                        <span class="icon"><i class="fas fa-file-upload"></i></span>
-                                        <input type="file" name="files[]" class="wizard-file" multiple id="a8755cf0-f4d1-6376-ee21-a6defd1e7c08">
+                                        <span class="icon"><i class="icon-file-upload2" style="font-size: 40px;top: 23px;"></i></span>
+                                        <input type="file" name="files[]" class="wizard-file icon-file-upload2" multiple id="a8755cf0-f4d1-6376-ee21-a6defd1e7c08">
                                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 37 37" xml:space="preserve">
                                             <path class="circ path" style="fill:none;stroke:#77d27b;stroke-width:3;stroke-linejoin:round;stroke-miterlimit:10;" d="M30.5,6.5L30.5,6.5c6.6,6.6,6.6,17.4,0,24l0,0c-6.6,6.6-17.4,6.6-24,0l0,0c-6.6-6.6-6.6-17.4,0-24l0,0C13.1-0.2,23.9-0.2,30.5,6.5z"></path>
                                             <polyline class="tick path" style="fill:none;stroke:#77d27b;stroke-width:3;stroke-linejoin:round;stroke-miterlimit:10;" points="11.6,20 15.9,24.2 26.4,13.8 "></polyline>
@@ -320,6 +320,7 @@
                 }
             });
         });
+
     </script>
     @endpush
  @stop()

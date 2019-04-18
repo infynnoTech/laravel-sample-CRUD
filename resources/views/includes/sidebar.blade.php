@@ -5,7 +5,7 @@
 							<div class="mr-3">
 								<?php
 
-									    $cavatar='uploads/placeholder300x300.png';
+									$cavatar='uploads/placeholder300x300.png';
 
 								?>
 								<a href="#"><img src="{{asset($cavatar)}}" width="38" height="38" class="rounded-circle" alt=""></a>
@@ -44,6 +44,14 @@
 								<i class="icon-home4"></i>
 								<span>
 									Dashboard
+								</span>
+							</a>
+						</li>
+						<li class="nav-item {{ ((Request::is('users'))? 'active': '') }}">
+							<a href="{{URL::to('users')}}" class="nav-link {{ ((Request::is('users'))? 'active': '') }}">
+								<i class="icon-user"></i>
+								<span>
+									Users
 								</span>
 							</a>
 						</li>

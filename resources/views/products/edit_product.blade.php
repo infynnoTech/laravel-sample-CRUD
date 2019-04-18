@@ -272,6 +272,40 @@
                     </div>
                     <div class="col-md-12">
                         <p class="text-semibold">Product Images:</p>
+                    </div>
+
+                    @if(isset($product->productdetail->images) && !empty($product->productdetail->images))
+                        @php
+                            $image_array = explode(',',$product->productdetail->images);
+                        @endphp
+                        @for($i=0; $i < count($image_array); $i++)
+
+        					@if(isset($image_array[$i]) && !empty($image_array[$i]))
+                                @php
+        						    $destinationPath = 'uploads/products/';
+        						    $destinationThumbPath = 'uploads/products/thumbnail/';
+
+                                @endphp
+
+        						@if(isset($image_array[$i]) && File::exists($destinationThumbPath.$image_array[$i]))
+                                    <div class="col-md-2">
+                                        <img src="{{asset($destinationThumbPath.$image_array[$i])}}" class="img-responsive"/>
+                                        <br/><br/>
+										<a href="javascript:void(0)" onclick="removeimg('{{route('delete_product_image')}}','{{Crypt::encrypt($product->id)}}','Delete','{{$image_array[$i]}}')" class="btn btn-w-m btn-danger btn-sm">Delete</a>
+                                    </div>
+        						@elseif( isset( $image_array[$i] ) && File::exists( $destinationPath.$image_array[$i] ) )
+                                    <div class="col-md-2">
+                                        <img src="{{asset($destinationPath.$image_array[$i])}}" class="img-responsive"/>
+                                        <a href="javascript:void(0)" onclick="removeimg('{{route('delete_product_image')}}','{{Crypt::encrypt($product->id)}}','Delete','{{$image_array[$i]}}')" class="btn btn-w-m btn-danger btn-sm">Delete</a>
+                                    </div>
+        						@endif
+
+        					@endif
+        				@endfor
+                    @endif
+
+                    <div class="col-md-12"><br/><br/></div>
+                    <div class="col-md-12">
 
                     	<div class="dropzones" >
                             <div class="custom-file-picker">
@@ -305,110 +339,61 @@
     @push('pagescript')
     <script type="text/javascript">
         //Global object to store the files
-        $(function(){
-            $(document).on('click','#submit-all',function(e){
-                // alert('ss');
-                // e.preventDefault()
-            });
-        });
+
         let fileStorage = {};
 
         $(document).ready(function(){
-            //Handle the file change
-            $("input[type='file']").change(function(e){
-                //Get the id
-                let id = e.target.id;
 
-                //Get the files
-                let files = e.target.files;
-
-                //Store the file
-                storeFile(id, files);
-
-                //Show the complete icon
-                $(this).siblings('.icon').hide();
-                $(this).parent().removeClass('drawn');
-                setTimeout(() => {
-                    $(this).parent().addClass('drawn');
-                }, 50);
-            });
-
-            //Store the file for particular filepicker
-            let storeFile = (id, files) => {
-                fileStorage[id] = files;
-
-                //Update the file count
-                $(`[data-id="${id}"] > .file-total-viewer`).text(files.length);
-            }
-
-            //Show file list
-            $('[data-toggle="popover"]').popover({
-                html: true,
-                title: "Files",
-                placement:"bottom",
-                content: function () {
-                    //Get the id of the file picker
-                    let id = $(this).attr('data-id');
-
-                    //Get all the files of this filepicker
-                    let items = fileStorage[id];
-
-                    //Preview the file
-                    let template = '<div class="row">';
-                    if(items && items.length){
-                        for(let val of items){
-                            template += "<div class='col-12 pb10'><span class='popover-content-file-name'>" + val.name + "</span><span class='popover-content-remove' data-target='" + id + "' data-name='" + val.name + "' data-type='upload'><i class='fas fa-trash'></i></span></div>"
-                        }
-                    }else{
-                        template += "<div class='col-12 pb10'><span class='popover-content'>No file</span></div>";
-                    }
-
-                    template += '</div>';
-                    return template;
-                }
-            });
-
-            //Prevent multiple popover
-            $('body').on('click', function (e) {
-                $('[data-toggle="popover"],[data-original-title]').each(function () {
-                   //the 'is' for buttons that trigger popups
-                   //the 'has' for icons within a button that triggers a popup
-                   if (!$(this).is(e.target) && $(this).has(e.target).length === 0 && $('.popover').has(e.target).length === 0) {
-                        (($(this).popover('hide').data('bs.popover') || {}).inState || {}).click = false;  // fix for BS 3.3.6
-                   }
-                });
-            });
-
-            //Delete files
-            $(document).on('click', '.popover-content-remove', function (e) {
-                //Get the id whose file to delete
-                let id = $(this).attr('data-target');
-
-                //Get the name of the file to delete
-                let name = $(this).attr('data-name');
-
-                //Confirm delete
-                let isDelete = confirm("Do you really want to delete this file?");
-
-                //If confirmed
-                if (isDelete) {
-                 //Remove the requested file
-                 let files = Object.values(fileStorage[id]);
-                 let newArr = files.filter((e) => { return e.name !== name; });
-
-                 //Update the list
-                 storeFile(id, newArr);
-
-                  //If there is no file then show No file
-                  if(newArr.length === 0){
-                        $(this).parent().parent().append("<div class='col-12 pb10'><span class='popover-content'>No file</span></div>");
-                   }
-
-                   //Remove the current file
-                   $(this).parent().remove();
-                }
-            });
         });
+        $(function() {
+
+            function removeimg(url,valid,stat,img){
+                var val_id= valid;
+                var stat= stat;
+                var url= url;
+                var img= img;
+                if( valid != ''){
+                    //console.log(valid);
+                    swal({
+                        title: 'Are you sure?',
+                          text: "This Image will be "+stat+"!",
+                          type: 'warning',
+                          showCancelButton: true,
+                          confirmButtonText: 'Yes, '+stat+' it!',
+                          cancelButtonText: 'No, cancel!',
+                          confirmButtonClass: 'btn btn-success',
+                          cancelButtonClass: 'btn btn-danger',
+                          buttonsStyling: true
+                   }).then(function(isConfirm) {
+                        if (isConfirm.value) {
+							$.ajax({
+		                        type: "POST",
+		                        url: url,
+		                        data: {'_token':'{{csrf_token()}}','val_id':val_id,'img':img},
+		                        success:function(response){
+                                    console.log(response);
+									if(response.result == 'success'){
+										toastr.success(response.message, "Success !");
+										location. reload(true);
+									}else{
+										toastr.error(response.message, "Error !");
+									}
+		                        }
+		                    });
+                        } else {
+                            swal("Cancelled", "Image is not "+stat+"! :)", "error");
+                        }
+                   })
+                }
+            }
+            removeimg_data = removeimg;
+        });
+        function removeimg(url,valID,stat,img)
+        {
+            if(valID != '' && valID != 0 && url != '' && url != 0){
+                removeimg_data(url,valID,stat,img);
+            }
+        }
     </script>
     @endpush
  @stop()
