@@ -30,6 +30,8 @@ class ProductStoreRequest extends FormRequest
             'color' => 'required',
             'weight' => 'required',
             'stock' => 'required|integer',
+            'files.*' => 'mimes:jpeg,bmp,png,jpg,JPEG,BMP,PNG,JPG|max:2000',
+
         ];
     }
 
@@ -48,6 +50,8 @@ class ProductStoreRequest extends FormRequest
             'weight.required' => 'weight is required!',
             'stock.required' => 'stock is required!',
             'stock.integer' => 'invalid stock!',
+            'files.mimes' => 'invalid File(s)!',
+            'files.max' => 'File size must be 2MB or lesser !',
         ];
     }
 

@@ -66,11 +66,23 @@
                                         <td>{{$product->name}}</td>
                                         <td>{{$product->category->name}}</td>
                                         <td>{{$product->price}}</td>
-                                        <td>{{$color[$product->productdetail->color]}}</td>
-                                        <td>{{$product->productdetail->stock}}</td>
-                                        <td>{{$height[$product->productdetail->height]}}</td>
                                         <td>
-                                            <a href="javascript:void(0)" data-toggle="tooltip" title="View" class="btn btn-sm btn-primary btn-sm-tbl-action"><i class="icon-pencil3"></i></a>
+                                            @if(isset($product->productdetail->color) && !empty( $product->productdetail->color))
+                                                {{$color[$product->productdetail->color]}}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($product->productdetail->stock) && !empty( $product->productdetail->stock))
+                                                {{$product->productdetail->stock}}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            @if(isset($product->productdetail->height) && !empty( $product->productdetail->height))
+                                                {{$color[$product->productdetail->height]}}
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <a href="{{ route('edit_product',Crypt::encrypt($product->id)) }}" data-toggle="tooltip" title="View" class="btn btn-sm btn-primary btn-sm-tbl-action"><i class="icon-pencil3"></i></a>
                                             <a href="javascript:void(0)" onclick="deleteRow('{{route('delete_product')}}','{{Crypt::encrypt($product->id)}}','Delete')" data-toggle="tooltip" title="Delete" class="btn btn-sm btn-danger btn-sm-tbl-action"><i class="icon-trash"></i></a>
                                         </td>
                                     </tr>
@@ -87,43 +99,7 @@
     @push('pagescript')
     <script type="text/javascript">
         $(function() {
-            @if ($errors->has('name'))
-                $('#modal_category_add').modal('show');
-            @endif
-
-            function editCategory(id){
-                if(id != '' && id != 0){
-                    $.ajax({
-                        type: "POST",
-                        url: '{!! URL::to("edit_catelgory") !!}',
-                        dataType: "json",
-                        data: {'_token':'{{csrf_token()}}','val_id':id},
-                        success:function(response){
-                            if(response.result == 'success'){
-                                $('#modal_category_edit').modal('show');
-                                $('#edit_name').val(response.name);
-                                $('#category_id').val(id);
-                                $('#description_edit').val(response.description);
-                                if(response.status != '' && response.status == '1'){
-                                    $('#status_edit').prop('checked',true);
-                                }else{
-                                    $('#status_edit').prop('checked',false);
-                                }
-                            }else{
-                                toastr.error(response.message, "Error !");
-                            }
-                        }
-                    });
-                }
-            }
-            editCategory_data = editCategory;
         });
-        function editCategory(id)
-        {
-            if(id != '' && id != 0){
-                editCategory_data(id);
-            }
-        }
     </script>
     @endpush
  @stop()

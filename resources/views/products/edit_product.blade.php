@@ -1,6 +1,6 @@
 @extends('layouts.app')
 @push('pageTitle')
-   Add Product
+   Edit Product
 @endpush
 
 @push('pagecss')
@@ -10,7 +10,7 @@
 @section('content')
 <div class="page-header-content header-elements-md-inline">
 	<div class="page-title d-flex">
-		<h4><i class="icon-arrow-left52 mr-2"></i> <span class="font-weight-semibold">Add</span> - Product</h4>
+		<h4><i class="icon-arrow-left52 mr-2"></i> <span class="font-weight-semibold">Edit</span> - Product</h4>
 		<a href="{{route('home')}}" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
 	</div>
 </div>
@@ -19,33 +19,43 @@
 	<div class="d-flex">
 		<div class="breadcrumb">
 			<a href="{{route('home')}}" class="breadcrumb-item"><i class="icon-home2 mr-2"></i> Dashboard</a>
-			<span class="breadcrumb-item active">Add Product</span>
+			<span class="breadcrumb-item active">Edit Product</span>
 		</div>
 		<a href="#" class="header-elements-toggle text-default d-md-none"><i class="icon-more"></i></a>
 	</div>
 	<div class="header-elements d-none">
-		<div class="breadcrumb justify-content-center">
-		</div>
+		<div class="breadcrumb justify-content-center"></div>
 	</div>
 </div>
 <div class="content">
     <div class="card">
         <div class="card-header header-elements-inline">
-               <h5 class="card-title">Product Information</h5>
-               <div class="header-elements">
-                   <div class="list-icons">
-                       <a class="list-icons-item" data-action="collapse"></a>
-                   </div>
+           <h5 class="card-title">Product Information</h5>
+           <div class="header-elements">
+               <div class="list-icons">
+                   <a class="list-icons-item" data-action="collapse"></a>
                </div>
            </div>
+       </div>
         <div class="card-body" style="">
-            <form autocomplete="off" action="{{route('save_product')}}" method="POST" enctype="multipart/form-data" class="form_admin_usrs" id="form_admin_products_add">
+            <form autocomplete="off" action="{{route('update_product')}}" method="POST" enctype="multipart/form-data" class="form_admin_usrs" id="form_admin_products_add">
                 {{ csrf_field() }}
+                <input type="hidden" name="product" value="{{Crypt::encrypt($product->id)}}">
                 <div class="row justify-content-md-center">
                     <div class="col-md-6">
                         <div class="form-group has-feedback">
                             <label for="product_name" class="col-form-label text-md-right">{{ __('Product Name') }}</label>
-                            <input id="product_name" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ old('name') }}"  autofocus>
+                            @php
+                                if(old('name')){
+                                    $name = old('name');
+                                }else if(!empty($product->name)){
+                                    $name = $product->name;
+                                }else{
+                                    $name = '';
+                                }
+
+                            @endphp
+                            <input id="product_name" type="text" class="form-control{{ $errors->has('name') ? ' is-invalid' : '' }}" name="name" value="{{ $name }}"  autofocus>
                             @if ($errors->has('name'))
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $errors->first('name') }}</strong>
@@ -56,11 +66,21 @@
                     <div class="col-md-6">
                         <div class="form-group has-feedback">
                             <label for="category" class="col-form-label text-md-right">{{ __('Select Category') }}</label>
+                            @php
+                                if(old('category')){
+                                    $category_id = old('category');
+                                }else if(!empty($product->category_id)){
+                                    $category_id = $product->category_id;
+                                }else{
+                                    $category_id = '';
+                                }
+
+                            @endphp
                             <select name="category" class="form-control{{ $errors->has('category') ? ' is-invalid' : '' }}">
                                 <option value="">Select Category</option>
                                 @if(isset($categories) && !empty($categories))
                                     @foreach($categories as $category)
-                                        <option {{(old('category') == $category->id) ? 'selected="selected"' : ''}} value="{{$category->id}}">{{$category->name}}</option>
+                                        <option {{($category_id == $category->id) ? 'selected="selected"' : ''}} value="{{$category->id}}">{{$category->name}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -75,7 +95,17 @@
                         <div class="form-group has-feedback">
                             <div class="form-group has-feedback">
                                 <label for="product_price" class="col-form-label text-md-right">{{ __('Product Price') }}</label>
-                                <input id="product_price" type="text" class="form-control{{ $errors->has('price') ? ' is-invalid' : '' }}" name="price" value="{{ old('price') }}"  placeholder="10.5">
+                                @php
+                                    if(old('price')){
+                                        $price = old('price');
+                                    }else if(!empty($product->price)){
+                                        $price = $product->price;
+                                    }else{
+                                        $price = '';
+                                    }
+
+                                @endphp
+                                <input id="product_price" type="text" class="form-control{{ $errors->has('price') ? ' is-invalid' : '' }}" name="price" value="{{ $price }}"  placeholder="10.5">
                                 @if ($errors->has('price'))
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $errors->first('price') }}</strong>
@@ -88,7 +118,17 @@
                         <div class="form-group has-feedback">
                             <div class="form-group has-feedback">
                                 <label for="product_stock" class="col-form-label text-md-right">{{ __('Product Stock') }}</label>
-                                <input id="product_stock" type="text" class="form-control{{ $errors->has('stock') ? ' is-invalid' : '' }}" name="stock" value="{{ old('stock') }}"  placeholder="15">
+                                @php
+                                    if(old('stock')){
+                                        $stock = old('stock');
+                                    }else if(!empty($product->productdetail->stock)){
+                                        $stock = $product->productdetail->stock;
+                                    }else{
+                                        $stock = '';
+                                    }
+
+                                @endphp
+                                <input id="product_stock" type="text" class="form-control{{ $errors->has('stock') ? ' is-invalid' : '' }}" name="stock" value="{{ $stock }}"  placeholder="15">
                                 @if ($errors->has('stock'))
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $errors->first('stock') }}</strong>
@@ -100,11 +140,21 @@
                     <div class="col-md-4">
                         <div class="form-group has-feedback">
                             <label for="color" class="col-form-label text-md-right">{{ __('Select Color') }}</label>
+                            @php
+                                if(old('color')){
+                                    $color_id = old('color');
+                                }else if(!empty($product->productdetail->color)){
+                                    $color_id = $product->productdetail->color;
+                                }else{
+                                    $color_id = '';
+                                }
+
+                            @endphp
                             <select name="color" class="form-control{{ $errors->has('color') ? ' is-invalid' : '' }}">
                                 <option value="">Select color</option>
                                 @if(isset($color) && !empty($color))
                                     @foreach($color as $k=>$v)
-                                        <option {{(old('color') == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
+                                        <option {{($color_id == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -118,11 +168,21 @@
                     <div class="col-md-4">
                         <div class="form-group has-feedback">
                             <label for="weight" class="col-form-label text-md-right">{{ __('Select weight') }}</label>
+                            @php
+                                if(old('weight')){
+                                    $weight_id = old('weight');
+                                }else if(!empty($product->productdetail->weight)){
+                                    $weight_id = $product->productdetail->weight;
+                                }else{
+                                    $weight_id = '';
+                                }
+
+                            @endphp
                             <select name="weight" class="form-control{{ $errors->has('weight') ? ' is-invalid' : '' }}">
                                 <option value="">Select weight</option>
                                 @if(isset($weight) && !empty($weight))
                                     @foreach($weight as $k=>$v)
-                                        <option {{(old('weight') == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
+                                        <option {{($weight_id == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -136,11 +196,21 @@
                     <div class="col-md-4">
                         <div class="form-group has-feedback">
                             <label for="width" class="col-form-label text-md-right">{{ __('Select weight') }}</label>
+                            @php
+                                if(old('width')){
+                                    $width_id = old('width');
+                                }else if(!empty($product->productdetail->width)){
+                                    $width_id = $product->productdetail->width;
+                                }else{
+                                    $width_id = '';
+                                }
+
+                            @endphp
                             <select name="width" class="form-control{{ $errors->has('width') ? ' is-invalid' : '' }}">
                                 <option value="">Select width</option>
                                 @if(isset($width) && !empty($width))
                                     @foreach($width as $k=>$v)
-                                        <option {{(old('width') == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
+                                        <option {{($width_id == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -154,11 +224,21 @@
                     <div class="col-md-4">
                         <div class="form-group has-feedback">
                             <label for="height" class="col-form-label text-md-right">{{ __('Select height') }}</label>
+                            @php
+                                if(old('height')){
+                                    $height_id = old('height');
+                                }else if(!empty($product->productdetail->height)){
+                                    $height_id = $product->productdetail->height;
+                                }else{
+                                    $height_id = '';
+                                }
+
+                            @endphp
                             <select name="height" class="form-control{{ $errors->has('height') ? ' is-invalid' : '' }}">
                                 <option value="">Select height</option>
                                 @if(isset($height) && !empty($height))
                                     @foreach($height as $k=>$v)
-                                        <option {{(old('height') == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
+                                        <option {{($height_id == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -172,7 +252,17 @@
                     <div class="col-md-12">
                         <div class="form-group has-feedback">
                             <label for="description" class="col-form-label text-md-right">{{ __('Description') }}</label>
-                            <textarea rows="5" id="description"  class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" name="description">{{ old('description') }}</textarea>
+                            @php
+                                if(old('description')){
+                                    $description = old('description');
+                                }else if(!empty($product->productdetail->description)){
+                                    $description = $product->productdetail->description;
+                                }else{
+                                    $description = '';
+                                }
+
+                            @endphp
+                            <textarea rows="5" id="description"  class="form-control{{ $errors->has('description') ? ' is-invalid' : '' }}" name="description">{{ $description }}</textarea>
                             @if ($errors->has('description'))
                                 <span class="invalid-feedback" role="alert">
                                     <strong>{{ $errors->first('description') }}</strong>
@@ -205,15 +295,14 @@
                         </div>
                     </div>
                     <div class="col-md-12">
-                        <button type="submit" id="submit-all" class="btn bg-primary">Save Product</button>
+                        <button type="submit" class="btn bg-primary">Save Product</button>
                     </div>
                 </div>
             </form>
         </div>
     </div>
 </div>
-@push('pagescript')
-
+    @push('pagescript')
     <script type="text/javascript">
         //Global object to store the files
         $(function(){

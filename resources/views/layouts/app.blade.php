@@ -31,16 +31,12 @@
  <!-- /core JS files -->
 
  <!-- Theme JS files -->
- 	<script src="{!!asset('admin/global_assets/js/plugins/visualization/d3/d3.min.js')!!}"></script>
- 	<script src="{!!asset('admin/global_assets/js/plugins/visualization/d3/d3_tooltip.js')!!}"></script>
  	<script src="{!!asset('admin/global_assets/js/plugins/ui/moment/moment.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/demo_pages/form_checkboxes_radios.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/notifications/sweet_alert.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/demo_pages/extra_sweetalert.js')!!}"></script>
 
  	<script src="{!!asset('admin/assets/js/app.js')!!}"></script>
- 	<script src="{!!asset('admin/global_assets/js/demo_pages/dashboard.js')!!}"></script>
-
 	<script src="{!!asset('admin/global_assets/js/plugins/formvalidation/formValidation.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/formvalidation/form-validator.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/formvalidation/framework/bootstrap.js')!!}"></script>
@@ -48,7 +44,7 @@
 	<script src="{!!asset('admin/global_assets/js/plugins/tables/datatables/datatables.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/tables/datatables/extensions/responsive.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/demo_pages/datatables_responsive.js')!!}"></script>
-
+	<script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js" integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP" crossorigin="anonymous"></script>
 	<script src="{!!asset('admin/assets/js/custom.js')!!}"></script>
 
 </head>

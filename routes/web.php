@@ -30,7 +30,7 @@ Route::group(['middleware' => ['auth']], function ()
     Route::get('/products', 'ProductController@index')->name('products');
     Route::get('/add-product', 'ProductController@create')->name('add_product');
     Route::post('/save-product', 'ProductController@store')->name('save_product');
-    Route::get('/edit-products', 'ProductController@index')->name('edit_product');
+    Route::get('/edit-products/{id}', 'ProductController@edit')->name('edit_product');
     Route::post('/update-product', 'ProductController@update')->name('update_product');
     Route::post('/delete-product', 'ProductController@destroy')->name('delete_product');
 });

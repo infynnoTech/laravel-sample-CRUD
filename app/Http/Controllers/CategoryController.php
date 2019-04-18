@@ -100,11 +100,13 @@ class CategoryController extends Controller
     public function edit(Request $request)
     {
         try{
-            $category=Category::find(Crypt::decrypt($request->val_id));
+            $category = Category::find(Crypt::decrypt($request->val_id));
             if(isset($category->id) && !empty($category->id)){
-                return response()->json(["result" => "success","status" => 200,'description'=>$category->description,'name'=>$category->name,'status'=>$category->status]);
+
+                return response()->json(["result" => "success","status" => 200,'description' => $category->description,'name' => $category->name,'status'=>$category->status]);
+                
             }else{
-                return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
+                return response()->json(["result" => "error","status" => 200,'message' => 'Something went wrong!']);
             }
         }catch (Exception $e) {
            Log::error($e);
@@ -156,10 +158,10 @@ class CategoryController extends Controller
     public function destroy(Request $request)
     {
         try{
-            $bool=0;
-            $category=Category::find(Crypt::decrypt($request->val_id));
+            $bool = 0;
+            $category = Category::find(Crypt::decrypt($request->val_id));
             if(isset($category->id) && !empty($category->id)){
-                $bool=$category->delete();
+                $bool = $category->delete();
             }
             if(isset($bool) && $bool > 0){
                 return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
