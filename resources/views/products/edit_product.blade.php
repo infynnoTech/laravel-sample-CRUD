@@ -105,7 +105,7 @@
                                     }
 
                                 @endphp
-                                <input id="product_price" type="text" class="form-control{{ $errors->has('price') ? ' is-invalid' : '' }}" name="price" value="{{ $price }}"  placeholder="10.5">
+                                <input id="product_price" type='number' step='0.01' class=" form-control{{ $errors->has('price') ? ' is-invalid' : '' }}" name="price" value="{{ $price }}"  placeholder="10.5">
                                 @if ($errors->has('price'))
                                     <span class="invalid-feedback" role="alert">
                                         <strong>{{ $errors->first('price') }}</strong>
@@ -142,19 +142,20 @@
                             <label for="color" class="col-form-label text-md-right">{{ __('Select Color') }}</label>
                             @php
                                 if(old('color')){
-                                    $color_id = old('color');
-                                }else if(!empty($product->productdetail->color)){
-                                    $color_id = $product->productdetail->color;
+                                    $colors_ar = explode(',',old('color'));
+                                }else if(!empty($product->productdetail->color) ){
+                                    $colors_ar = explode(',',$product->productdetail->color);
                                 }else{
-                                    $color_id = '';
+                                    $colors_ar = '';
                                 }
 
                             @endphp
-                            <select name="color" class="form-control{{ $errors->has('color') ? ' is-invalid' : '' }}">
+                                <select name="color[]" class="form-control multiselect {{ $errors->has('color') ? ' is-invalid' : '' }}" multiple="multiple">
                                 <option value="">Select color</option>
+
                                 @if(isset($color) && !empty($color))
                                     @foreach($color as $k=>$v)
-                                        <option {{($color_id == $k) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
+                                        <option {{(is_array($colors_ar) && in_array( $k ,$colors_ar)) ? 'selected="selected"' : ''}} value="{{$k}}">{{$v}}</option>
                                     @endforeach
                                 @endif
                             </select>
@@ -274,46 +275,33 @@
                         <p class="text-semibold">Product Images:</p>
                     </div>
 
-                    @if(isset($product->productdetail->images) && !empty($product->productdetail->images))
+                    @if(isset($product->productdetail->product_image_thumb_path) && !empty($product->productdetail->product_image_thumb_path))
+
                         @php
-                            $image_array = explode(',',$product->productdetail->images);
+                            $images = $product->productdetail->product_image_thumb_path;
                         @endphp
-                        @for($i=0; $i < count($image_array); $i++)
 
-        					@if(isset($image_array[$i]) && !empty($image_array[$i]))
-                                @php
-        						    $destinationPath = 'uploads/products/';
-        						    $destinationThumbPath = 'uploads/products/thumbnail/';
+                        @for($i = 0; $i < count($images) ; $i++ )
+                            <div class="col-md-2">
+                                <img src="{{$images[$i]['url']}}" class="img-responsive"/>
+                                <a href="javascript:void(0)" onclick="removeimg('{{route('delete_product_image')}}','{{Crypt::encrypt($product->id)}}','Delete','{{$images[$i]['name']}}')" class="btn btn-w-m btn-danger btn-sm">Delete</a>
+                            </div>
+                        @endfor
 
-                                @endphp
-
-        						@if(isset($image_array[$i]) && File::exists($destinationThumbPath.$image_array[$i]))
-                                    <div class="col-md-2">
-                                        <img src="{{asset($destinationThumbPath.$image_array[$i])}}" class="img-responsive"/>
-                                        <br/><br/>
-										<a href="javascript:void(0)" onclick="removeimg('{{route('delete_product_image')}}','{{Crypt::encrypt($product->id)}}','Delete','{{$image_array[$i]}}')" class="btn btn-w-m btn-danger btn-sm">Delete</a>
-                                    </div>
-        						@elseif( isset( $image_array[$i] ) && File::exists( $destinationPath.$image_array[$i] ) )
-                                    <div class="col-md-2">
-                                        <img src="{{asset($destinationPath.$image_array[$i])}}" class="img-responsive"/>
-                                        <a href="javascript:void(0)" onclick="removeimg('{{route('delete_product_image')}}','{{Crypt::encrypt($product->id)}}','Delete','{{$image_array[$i]}}')" class="btn btn-w-m btn-danger btn-sm">Delete</a>
-                                    </div>
-        						@endif
-
-        					@endif
-        				@endfor
                     @endif
+
+
 
                     <div class="col-md-12"><br/><br/></div>
                     <div class="col-md-12">
 
-                    	<div class="dropzones" >
+                        <div class="dropzones" >
                             <div class="custom-file-picker">
                                 <div class="picture-container form-group">
                                     <h4 class="info_text">Upload Product Images</h4>
                                     <div class="picture">
-                                        <span class="icon"><i class="fas fa-file-upload"></i></span>
-                                        <input type="file" name="files[]" class="wizard-file" multiple id="a8755cf0-f4d1-6376-ee21-a6defd1e7c08">
+                                        <span class="icon"><i class="icon-file-upload2" style="font-size: 40px;top: 23px;"></i></span>
+                                        <input type="file" name="files[]" class="wizard-file icon-file-upload2" multiple id="a8755cf0-f4d1-6376-ee21-a6defd1e7c08">
                                         <svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 37 37" xml:space="preserve">
                                             <path class="circ path" style="fill:none;stroke:#77d27b;stroke-width:3;stroke-linejoin:round;stroke-miterlimit:10;" d="M30.5,6.5L30.5,6.5c6.6,6.6,6.6,17.4,0,24l0,0c-6.6,6.6-17.4,6.6-24,0l0,0c-6.6-6.6-6.6-17.4,0-24l0,0C13.1-0.2,23.9-0.2,30.5,6.5z"></path>
                                             <polyline class="tick path" style="fill:none;stroke:#77d27b;stroke-width:3;stroke-linejoin:round;stroke-miterlimit:10;" points="11.6,20 15.9,24.2 26.4,13.8 "></polyline>
@@ -337,21 +325,19 @@
     </div>
 </div>
     @push('pagescript')
+    <script src="{!!asset('admin/global_assets/js/imageUploader/imageUploader.js')!!}"></script>
     <script type="text/javascript">
         //Global object to store the files
 
-        let fileStorage = {};
-
-        $(document).ready(function(){
-
-        });
         $(function() {
 
             function removeimg(url,valid,stat,img){
-                var val_id= valid;
-                var stat= stat;
-                var url= url;
-                var img= img;
+
+                var val_id = valid;
+                var stat   = stat;
+                var url    = url;
+                var img    = img;
+
                 if( valid != ''){
                     //console.log(valid);
                     swal({

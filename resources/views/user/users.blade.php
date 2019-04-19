@@ -82,7 +82,7 @@
 </div>
 <div id="modal_user_add" class="modal show" tabindex="-1">
     <div class="modal-dialog">
-        <form autocomplete="off" action="{{route('add_user')}}" method="POST" enctype="multipart/form-data" class="form-user" id="user_add">
+        <form autocomplete="off" action="" method="POST" enctype="multipart/form-data" class="form-user" id="user_add">
           {{ csrf_field() }}
             <div class="modal-content">
                 <div class="modal-header">
@@ -101,7 +101,7 @@
                     </div>
                     <div class="form-group has-feedback">
                         <label for="user_email" class="col-form-label text-md-right">{{ __('User Email') }}</label>
-                        <input id="user_email" type="name" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}"  >
+                        <input id="user_email" type="email" class="form-control{{ $errors->has('email') ? ' is-invalid' : '' }}" name="email" value="{{ old('email') }}"  >
                         @if ($errors->has('email'))
                             <span class="invalid-feedback" role="alert">
                                 <strong>{{ $errors->first('email') }}</strong>
@@ -130,7 +130,7 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-link" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn bg-primary">Save changes</button>
+                    <button type="button" id="add_user_btn" class="btn bg-primary">Save changes</button>
                 </div>
             </div>
         </form>
@@ -196,6 +196,43 @@
     @push('pagescript')
     <script type="text/javascript">
         $(function() {
+
+            $(document).on('click','#add_user_btn',function(e){
+
+                e.preventDefault();
+                var data = {
+                    '_token':'{{csrf_token()}}',
+                    'name':$("#categories_name").val(),
+                    'email':$("#user_email").val(),
+                    'password':$("#user_password").val(),
+                    'passwordAgain':$("#confirm_password").val()
+                }
+                $.ajax({
+                    type: "POST",
+                    url: '{{ route("add_user") }}',
+                    data: data,
+                    dataType: 'json',
+                    success:function(response){
+                        //alert('sss');
+                        toastr.success(response.message, "Success !");
+                        location. reload(true);
+                    },
+                    error: function( json )
+                    {
+                        if(json.status === 422) {
+                            var errors = json.responseJSON;
+                            $.each(json.responseJSON.errors, function (key, value) {
+                            //    console.log(value);
+                               toastr.error(value, "Error !");
+                            });
+
+                        } else {
+
+                        }
+                    }
+                });
+            });
+
             @if ($errors->has('name') || $errors->has('email') || $errors->has('password') || $errors->has('passwordAgain'))
                 $('#modal_user_add').modal('show');
             @endif
@@ -212,6 +249,7 @@
                                 $('#modal_user_edit').modal('show');
                                 $('#edit_name').val(response.name);
                                 $('#edit_email').val(response.email);
+                                $('#user_id').val(id);
 
                             }else{
                                 toastr.error(response.message, "Error !");

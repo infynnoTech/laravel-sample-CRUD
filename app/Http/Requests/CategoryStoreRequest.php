@@ -2,6 +2,8 @@
 
 namespace App\Http\Requests;
 
+use Crypt;
+use Illuminate\Http\Request;
 use Illuminate\Foundation\Http\FormRequest;
 
 class CategoryStoreRequest extends FormRequest
@@ -21,11 +23,23 @@ class CategoryStoreRequest extends FormRequest
      *
      * @return array
      */
-    public function rules()
+    public function rules(Request $request)
     {
-        return [
-            'name' => 'required|string|max:50|min:2',
-        ];
+        if(isset($request->category) && !empty($request->category)){
+
+            $id = Crypt::decrypt($request->category);
+
+            if(isset($id) && $id > 0){
+
+                return [
+                    'name' => 'required|string|max:50|min:2|unique:categories,name,'.$id.',id',
+                ];
+            }
+        }else{
+            return [
+                'name' => 'required|string|max:50|min:2|unique:categories,name',
+            ];
+        }
     }
 
     /**

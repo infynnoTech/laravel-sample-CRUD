@@ -21,7 +21,16 @@
                     <td>{{$product->price}}</td>
                     <td>
                         @if(isset($product->productdetail->color) && !empty( $product->productdetail->color))
-                            {{$color[$product->productdetail->color]}}
+                            @php
+                                $colors = explode(',',$product->productdetail->color);
+                                for( $i = 0; $i < count($colors) ;$i++ ){
+                                    if(isset($colors[$i]) && !empty($colors[$i])){
+
+                                        echo $color[$colors[$i]] .',';
+                                    }
+                                }
+                            @endphp
+
                         @endif
                     </td>
                     <td>
@@ -31,7 +40,7 @@
                     </td>
                     <td>
                         @if(isset($product->productdetail->height) && !empty( $product->productdetail->height))
-                            {{$color[$product->productdetail->height]}}
+                            {{$height[$product->productdetail->height]}}
                         @endif
                     </td>
                     <td>

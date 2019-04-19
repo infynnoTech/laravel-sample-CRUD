@@ -306,7 +306,7 @@ $('#form_admin_products_add').formValidation({
     validating: 'fa fa-refreshs'
   },
   fields: {
-        color: {
+        'color[]': {
           validators: {
             notEmpty: {
               message: 'Select color !'

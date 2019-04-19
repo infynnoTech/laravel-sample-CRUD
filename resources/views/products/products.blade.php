@@ -54,7 +54,9 @@
 
     @push('pagescript')
     <script type="text/javascript">
+        //if there has been changes to the anchor part (begins with a '#' symbol) of the current URL.
         $(window).on('hashchange', function() {
+            // returns the anchor part of a URL, including the hash sign (#)
             if (window.location.hash) {
                 var page = window.location.hash.replace('#', '');
                 if (page == Number.NaN || page <= 0) {
@@ -70,11 +72,12 @@
             $(document).on('click', '.pagination a',function(event)
             {
                 event.preventDefault();
-
+                // set active class to  pagination navigatin link
                 $('li').removeClass('active');
                 $(this).parent('li').addClass('active');
 
                 var myurl = $(this).attr('href');
+                //get page number from navigatin URL
                 var page=$(this).attr('href').split('page=')[1];
 
                 getData(page);
@@ -89,8 +92,8 @@
                 type: "get",
                 datatype: "html"
             }).done(function(data){
-                $("#tag_container").empty().html(data);
-                location.hash = page;
+                $("#tag_container").empty().html(data); // Uppend page wise data
+                location.hash = page; //set page number in url
             }).fail(function(jqXHR, ajaxOptions, thrownError){
                   alert('No response from server');
             });

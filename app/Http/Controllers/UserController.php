@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Input,
     Config,
     Hash,
@@ -15,9 +14,10 @@ use Input,
     Mail;
 use Crypt;
 use Session;
-use Carbon\Carbon;
-use App\Http\Requests\UserStoreRequest;
 use App\User;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Requests\UserStoreRequest;
 
 class UserController extends Controller
 {
@@ -28,10 +28,13 @@ class UserController extends Controller
      */
     public function index()
     {
-        try{
-            $data['users'] = User::paginate(1);
+        try {
+
+            $data['users'] = User::paginate(5);
             return view('user.users', $data);
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
 
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
@@ -56,24 +59,31 @@ class UserController extends Controller
      */
     public function store(UserStoreRequest $request)
     {
-        try{
+        try {
 
             $user = new User();
-            $user->name = $request->name;
-            $user->email = $request->email;
+
+            $user->name     = $request->name;
+            $user->email    = $request->email;
             $user->password = Hash::make( $request->password );
 
             $bool = $user->save();
-            if(isset($bool) && $bool > 0){
-                Session::flash('success_message','Saved Successfully!');
-            }else{
-                Session::flash('error_message','Try again, Something went wrong');
+
+            if(isset($bool) && $bool > 0) {
+
+                 return response()->json(['result' => 'sucess', 'message' => 'saved successfully.', 'status' => 200]);
+            } else {
+
+                 return response()->json(['result' => 'erro', 'message' => 'some thing went wrong.', 'status' => 500]);
             }
 
-        }catch (Exception $e) {
+        } catch(Exception $e) {
+
            Log::error($e);
+
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
         }
+
         return redirect('/users');
     }
 
@@ -96,18 +106,24 @@ class UserController extends Controller
      */
     public function edit(Request $request)
     {
-        try{
+        try {
+
             $user = User::find(Crypt::decrypt($request->val_id));
+
             if(isset($user->id) && !empty($user->id)){
 
                 return response()->json(["result" => "success","status" => 200,'email' => $user->email,'name' => $user->name]);
 
             }else{
+
                 return response()->json(["result" => "error","status" => 200,'message' => 'Something went wrong!']);
             }
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
+
         }
     }
 
@@ -120,25 +136,37 @@ class UserController extends Controller
      */
     public function update(UserStoreRequest $request)
     {
-        try{
+        try {
+
             $user=User::find(Crypt::decrypt($request->user));
-            if(isset($user->id) && !empty($user->id)){
-                $user->name = $request->name;
+
+            if(isset($user->id) && !empty($user->id)) {
+
+                $user->name  = $request->name;
                 $user->email = $request->email;
 
                 $bool = $user->update();
-                if(isset($bool) && $bool>0){
+
+                if(isset($bool) && $bool>0) {
+
                     Session::flash('success_message','Saved Successfully!');
-                }else{
+
+                }else {
+
                     Session::flash('error_message','Try again, Something went wrong');
                 }
-            }else{
+            } else {
+
                 return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
             }
+
             return redirect('/users');
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
+
         }
     }
 
@@ -150,18 +178,26 @@ class UserController extends Controller
      */
     public function destroy(Request $request)
     {
-        try{
+        try {
+
             $bool = 0;
             $user = User::find(Crypt::decrypt($request->val_id));
-            if(isset($user->id) && !empty($user->id)){
+
+            if(isset($user->id) && !empty($user->id)) {
+
                 $bool = $user->delete();
             }
-            if(isset($bool) && $bool > 0){
+            if(isset($bool) && $bool > 0) {
+
                 return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
-            }else{
+
+            } else {
+
                 return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
             }
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
         }

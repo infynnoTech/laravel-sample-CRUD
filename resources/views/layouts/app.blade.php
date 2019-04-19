@@ -43,7 +43,10 @@
 	<script src="{!!asset('admin/global_assets/js/toastr/toastr.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/tables/datatables/datatables.min.js')!!}"></script>
 	<script src="{!!asset('admin/global_assets/js/plugins/tables/datatables/extensions/responsive.min.js')!!}"></script>
+	<script src="{!!asset('admin/global_assets/js/plugins/forms/selects/bootstrap_multiselect.js')!!}"></script>
+
 	<script src="{!!asset('admin/global_assets/js/demo_pages/datatables_responsive.js')!!}"></script>
+	<script src="{!!asset('admin/global_assets/js/demo_pages/form_multiselect.js')!!}"></script>
 	<!-- <script defer src="https://use.fontawesome.com/releases/v5.7.2/js/all.js" integrity="sha384-0pzryjIRos8mFBWMzSSZApWtPl/5++eIfzYmTgBBmXYdhvxPc+XcFEk+zJwDgWbP" crossorigin="anonymous"></script> -->
 	<script src="{!!asset('admin/assets/js/custom.js')!!}"></script>
 

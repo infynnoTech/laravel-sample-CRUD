@@ -10,6 +10,7 @@ use Input,
 	Response,
     View,
     URL,
+    Log,
     Mail;
 use Crypt;
 use Session;
@@ -37,7 +38,7 @@ class ProductController extends Controller
             $data['height'] = Config::get('constants.height');
             //print_r( $data['products']->productdetail->color);exit;
 
-            $data['products'] = Product::paginate(1);
+            $data['products'] = Product::paginate(5);
             if ($request->ajax()) {
                return view('products.product_table',$data);
             }
@@ -98,7 +99,7 @@ class ProductController extends Controller
                 //product detail save
                 $product_detail->product_id = $product->id;
                 $product_detail->stock = $request->stock;
-                $product_detail->color = $request->color;
+                $product_detail->color = implode(',', $request->color) ;
                 $product_detail->weight = $request->weight;
                 $product_detail->weight = $request->weight;
                 $product_detail->height = $request->height;
@@ -109,8 +110,8 @@ class ProductController extends Controller
                 if(!empty(Input::file('files'))){
                     foreach(Input::file('files') as $fileData){
 
-                            $destinationPath = 'public/uploads/products/';
-							$destinationThumbPath = 'public/uploads/products/thumbnail/';
+                            $destinationPath = 'uploads/products/';
+							$destinationThumbPath = 'uploads/products/thumbnail/';
 
 							if(!File::exists($destinationPath)) {
 								File::makeDirectory($destinationPath, $mode = 0777, true, true);
@@ -146,6 +147,8 @@ class ProductController extends Controller
                 $product_detail->save();
 
                 if(isset($product_detail->id) && $product_detail->id > 0){
+
+                    Log::info('product added successfully');
                     Session::flash('success_message','Saved Successfully!');
                 }else{
                     Session::flash('error_message','Try again, Something went wrong');
@@ -231,9 +234,9 @@ class ProductController extends Controller
 
                 //product detail Update
                 $product_detail->stock = $request->stock;
-                $product_detail->color = $request->color;
+                $product_detail->color = implode(',', $request->color) ;
                 $product_detail->weight = $request->weight;
-                $product_detail->weight = $request->weight;
+                $product_detail->width = $request->width;
                 $product_detail->height = $request->height;
                 $product_detail->description = $request->description;
 
@@ -284,6 +287,7 @@ class ProductController extends Controller
                 $bool_product_detail = $product_detail->update();
 
                 if(isset($bool_product) && $bool_product > 0 && isset($bool_product_detail) && $bool_product_detail > 0){
+                    Log::info('product updated successfully');
                     Session::flash('success_message','Updated Successfully!');
                 }else{
                     Session::flash('error_message','Try again, Something went wrong');
@@ -366,9 +370,10 @@ class ProductController extends Controller
 
                     $image_key = array_search($request->img,$image_array);
 
-					if(isset($image_array[$image_key]) && !empty($image_array[$image_key])){
-						$destinationPath = 'public/uploads/products/';
-						$destinationThumbPath = 'public/uploads/products/thumbnail/';
+					if(isset($image_array[$image_key]) && !empty($image_array[$image_key])) {
+
+						$destinationPath = 'uploads/products/';
+						$destinationThumbPath = 'uploads/products/thumbnail/';
 
 						if(isset($image_array[$image_key]) && File::exists($destinationThumbPath.$image_array[$image_key])){
 							$delete=File::delete($destinationThumbPath.$image_array[$image_key]);
@@ -386,6 +391,7 @@ class ProductController extends Controller
             }
 
             if(isset($bool) && $bool > 0){
+                Log::info('product deleted successfully');
                 return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
             }else{
                 return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);

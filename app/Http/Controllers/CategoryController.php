@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use Input,
     Config,
     Image,
@@ -14,9 +13,10 @@ use Input,
     Mail;
 use Crypt;
 use Session;
-use Carbon\Carbon;
-use App\Http\Requests\CategoryStoreRequest;
 use App\Category;
+use Carbon\Carbon;
+use Illuminate\Http\Request;
+use App\Http\Requests\CategoryStoreRequest;
 
 class CategoryController extends Controller
 {
@@ -27,11 +27,15 @@ class CategoryController extends Controller
      */
     public function index()
     {
-        try{
+        try {
+
             $data['categories'] = Category::get();
-            $data['status'] = Config::get('constants.status');
+            $data['status']     = Config::get('constants.status');
+
             return view('category.categories', $data);
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
 
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
@@ -56,27 +60,35 @@ class CategoryController extends Controller
      */
     public function store(CategoryStoreRequest $request)
     {
-        try{
+        try {
 
             $category = new Category();
             $category->name = $request->name;
             $category->description = $request->description;
-            if(isset($request->status) && !empty($request->status) && $request->status=='1'){
+
+            if(isset($request->status) && !empty($request->status) && $request->status=='1') {
+
                 $category->status = '1';
-            }else{
+            } else {
                 $category->status = '0';
             }
+
             $bool = $category->save();
-            if(isset($bool) && $bool > 0){
+
+            if(isset($bool) && $bool > 0) {
+
                 Session::flash('success_message','Saved Successfully!');
-            }else{
+            } else {
+
                 Session::flash('error_message','Try again, Something went wrong');
             }
 
-        }catch (Exception $e) {
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
         }
+
         return redirect('/categories');
     }
 
@@ -99,13 +111,23 @@ class CategoryController extends Controller
      */
     public function edit(Request $request)
     {
-        try{
-            $category = Category::find(Crypt::decrypt($request->val_id));
-            if(isset($category->id) && !empty($category->id)){
+        try {
 
-                return response()->json(["result" => "success","status" => 200,'description' => $category->description,'name' => $category->name,'status'=>$category->status]);
-                
-            }else{
+            $category = Category::find(Crypt::decrypt($request->val_id));
+
+            if(isset($category->id) && !empty($category->id)) {
+
+                return response()->json([
+
+                    "result"      => "success",
+                    "status"      => 200,
+                    'description' => $category->description,
+                    'name'        => $category->name,
+                    'status'      =>$category->status
+                ]);
+
+            } else {
+
                 return response()->json(["result" => "error","status" => 200,'message' => 'Something went wrong!']);
             }
         }catch (Exception $e) {
@@ -124,26 +146,42 @@ class CategoryController extends Controller
     public function update(CategoryStoreRequest $request)
     {
         try{
+
             $category=Category::find(Crypt::decrypt($request->category));
-            if(isset($category->id) && !empty($category->id)){
-                $category->name = $request->name;
+
+            if(isset($category->id) && !empty($category->id)) {
+
+                $category->name        = $request->name;
                 $category->description = $request->description;
-                if(isset($request->status) && !empty($request->status) && $request->status=='1'){
+
+                if(isset($request->status) && !empty($request->status) && $request->status=='1') {
+
                     $category->status = '1';
-                }else{
+                } else {
+
                     $category->status = '0';
                 }
+
                 $bool = $category->update();
-                if(isset($bool) && $bool>0){
+
+                if(isset($bool) && $bool>0) {
+
                     Session::flash('success_message','Saved Successfully!');
-                }else{
+
+                } else {
+
                     Session::flash('error_message','Try again, Something went wrong');
                 }
-            }else{
+
+            } else {
+
                 return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
             }
+
             return redirect('/categories');
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
         }
@@ -157,20 +195,31 @@ class CategoryController extends Controller
      */
     public function destroy(Request $request)
     {
-        try{
-            $bool = 0;
+        try {
+
+            $bool     = 0;
             $category = Category::find(Crypt::decrypt($request->val_id));
-            if(isset($category->id) && !empty($category->id)){
+
+            if(isset($category->id) && !empty($category->id)) {
+
                 $bool = $category->delete();
+
             }
-            if(isset($bool) && $bool > 0){
+
+            if(isset($bool) && $bool > 0) {
+
                 return response()->json(["result" => "success","status" => 200,'message'=>'Successfully Deleted!']);
-            }else{
+
+            } else {
+
                 return response()->json(["result" => "error","status" => 200,'message'=>'Something went wrong!']);
             }
-        }catch (Exception $e) {
+
+        } catch (Exception $e) {
+
            Log::error($e);
            return response()->json(['status' => 0, 'message' => 'Something went wrong.'], 500);
+
         }
     }
 }
